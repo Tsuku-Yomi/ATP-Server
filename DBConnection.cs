@@ -33,14 +33,15 @@ namespace ATP_Server {
             getBestCmd = new MySqlCommand(getBestSqlStr, connection);
         }
 
-        public void UpdateScore(int highScore,string playerName) {
+        public void UpdateScore(GameRecord gameRecord) {
+            if (gameRecord.score < 0) return;
             updateCmd.Parameters.Clear();
-            updateCmd.Parameters.AddWithValue("@score", highScore);
-            updateCmd.Parameters.AddWithValue("@player_name", playerName);
+            updateCmd.Parameters.AddWithValue("@score", gameRecord.score);
+            updateCmd.Parameters.AddWithValue("@player_name", gameRecord.name);
             if(updateCmd.ExecuteNonQuery() == 0) {
                 Console.WriteLine("Mysql插入错误");
             } else {
-                Console.WriteLine("新增高分:"+playerName+"："+highScore.ToString());
+                Console.WriteLine("新增高分:"+gameRecord.name+"："+gameRecord.score.ToString());
             }
             setBestCmd.ExecuteNonQuery();
         }

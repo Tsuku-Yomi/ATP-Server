@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace ATP_Server {
     class Network {
@@ -14,8 +17,19 @@ namespace ATP_Server {
             serverSocket.Listen(10);
         }
 
-        public void Run() {
+        public void Run(DBConnection dB) {
+            while (true) {
+                Socket accept = serverSocket.Accept();
 
+                byte[] receive = new byte[100];
+                accept.Receive(receive);
+                dB.UpdateScore(JsonSerializer.Deserialize<GameRecord>(Encoding.Default.GetString(receive)));
+                byte[] send = new byte[600];
+                GameRecord[] gameRecords = dB.GetBest10();
+                accept.Send(Encoding.Default.GetBytes(JsonSerializer.Serialize<GameRecord[]>(gameRecords)));
+
+                accept.Close();
+            }
         } 
     }
 }

@@ -3,7 +3,9 @@
 namespace ATP_Server {
     class Program {
         static void Main(string[] args) {
-            Console.WriteLine("Hello World!");
+            DBConnection dB = new DBConnection();
+            Network network = new Network();
+            network.Run(dB);
         }
     }
 }
