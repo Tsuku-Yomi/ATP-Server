@@ -5,7 +5,7 @@ using System.Text;
 namespace ATP_Server {
     [Serializable]
     class GameRecord {
-        GameRecord(int score, string name) {
+        public GameRecord(int score, string name) {
             this.score = score;
             this.name = name;
         }

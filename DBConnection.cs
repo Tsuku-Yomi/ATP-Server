@@ -10,8 +10,10 @@ namespace ATP_Server {
     class DBConnection {
         private string connStr;
         private string updateScoreSqlStr = "INSERT INTO high_score(score,player_name) VALUES (@score,@player_name);";
-        private string getBestSqlStr = "DELETE FROM high_score WHERE player_name NOT IN (SELECT TOP 10 player_name FROM high_score ORDER BY score DESC";
+        private string setBestSqlStr = "DELETE FROM high_score WHERE player_name NOT IN (SELECT TOP 10 player_name FROM high_score ORDER BY score DESC)";
+        private string getBestSqlStr = "SELECT TOP 10 * FROM high_score ORDER BY score DESC";
         private MySqlCommand updateCmd;
+        private MySqlCommand setBestCmd;
         private MySqlCommand getBestCmd;
         private MySqlConnection connection;
         public DBConnection() {
@@ -27,6 +29,7 @@ namespace ATP_Server {
                 Console.WriteLine(e);
             }
             updateCmd = new MySqlCommand(updateScoreSqlStr, connection);
+            setBestCmd = new MySqlCommand(setBestSqlStr, connection);
             getBestCmd = new MySqlCommand(getBestSqlStr, connection);
         }
 
@@ -39,9 +42,17 @@ namespace ATP_Server {
             } else {
                 Console.WriteLine("新增高分:"+playerName+"："+highScore.ToString());
             }
-            getBestCmd.ExecuteNonQuery();
+            setBestCmd.ExecuteNonQuery();
         }
 
-        public void GetBest10()
+        public GameRecord[] GetBest10() {
+            GameRecord[] gameRecords = new GameRecord[10];
+            MySqlDataReader dataReader = getBestCmd.ExecuteReader();
+            for(int index = 0; index < 10; ++index) {
+                dataReader.Read();
+                gameRecords[index] = new GameRecord(dataReader.GetInt32("score"),dataReader.GetString("player_name"));
+            }
+            return gameRecords;
+        }
     }
 }
