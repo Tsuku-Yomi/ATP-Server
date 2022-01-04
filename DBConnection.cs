@@ -9,9 +9,9 @@ using System.IO;
 namespace ATP_Server {
     class DBConnection {
         private string connStr;
-        private string updateScoreSqlStr = "INSERT INTO high_score(score,player_name) VALUES (@score,@player_name);";
-        private string setBestSqlStr = "DELETE FROM high_score WHERE player_name NOT IN (SELECT TOP 10 player_name FROM high_score ORDER BY score DESC)";
-        private string getBestSqlStr = "SELECT TOP 10 * FROM high_score ORDER BY score DESC";
+        private string updateScoreSqlStr = "INSERT INTO high_score(score,player_name) VALUES (@score , @player_name);";
+        private string setBestSqlStr = "DELETE FROM high_score WHERE player_name NOT IN (SELECT t.player_name FROM (SELECT player_name FROM high_score ORDER BY score DESC LIMIT 10) AS t);";
+        private string getBestSqlStr = "SELECT * FROM high_score ORDER BY score DESC LIMIT 10;";
         private MySqlCommand updateCmd;
         private MySqlCommand setBestCmd;
         private MySqlCommand getBestCmd;
@@ -53,6 +53,7 @@ namespace ATP_Server {
                 dataReader.Read();
                 gameRecords[index] = new GameRecord(dataReader.GetInt32("score"),dataReader.GetString("player_name"));
             }
+            dataReader.Close();
             return gameRecords;
         }
     }
